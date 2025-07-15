@@ -1,0 +1,6 @@
+ID,pmid,pmcid,sentence,structure_1,structure_2,relation,score,pubmed_url
+1,12345678,PMC1234567,The brain connects to the spinal cord.,brain,spinal cord,connects,0.95,https://pubmed.ncbi.nlm.nih.gov/12345678/
+2,87654321,,Neurons communicate through synapses.,neurons,synapses,communicate,0.87,https://pubmed.ncbi.nlm.nih.gov/87654321/
+3,,PMC7654321,The hippocampus is involved in memory.,hippocampus,memory,involved,0.92,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7654321/
+4,11111111,,Dopamine is a neurotransmitter.,dopamine,receptors,binds,0.88,https://pubmed.ncbi.nlm.nih.gov/11111111/
+5,22222222,PMC3333333,The cortex has multiple layers.,cortex,layers,has,0.9,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3333333/
