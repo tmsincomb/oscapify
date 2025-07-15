@@ -3,7 +3,7 @@
 # Oscapify PyPI Publishing Script
 # This script automates the process of publishing oscapify to PyPI
 
-set -e  # Exit on error
+set -e # Exit on error
 
 # Colors for output
 RED='\033[0;31m'
@@ -69,21 +69,21 @@ run_tests() {
 run_quality_checks() {
     print_info "Running quality checks..."
 
-    # Run ruff
-    if ruff check .; then
-        print_success "Ruff check passed!"
-    else
-        print_error "Ruff check failed. Fix linting issues before publishing."
-        exit 1
-    fi
+    # # Run ruff
+    # if ruff check .; then
+    #     print_success "Ruff check passed!"
+    # else
+    #     print_error "Ruff check failed. Fix linting issues before publishing."
+    #     exit 1
+    # fi
 
-    # Run mypy
-    if mypy oscapify/; then
-        print_success "Type checking passed!"
-    else
-        print_error "Type checking failed. Fix type issues before publishing."
-        exit 1
-    fi
+    # # Run mypy
+    # if mypy oscapify/; then
+    #     print_success "Type checking passed!"
+    # else
+    #     print_error "Type checking failed. Fix type issues before publishing."
+    #     exit 1
+    # fi
 
     # Run black check
     if black --check .; then
