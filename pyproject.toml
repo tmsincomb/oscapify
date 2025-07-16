@@ -1,11 +1,14 @@
-[project]
+[tool.poetry]
 name = "oscapify"
 version = "0.1.0"
 description = "A robust tool for converting scientific literature CSV files to OSCAP-compatible format"
-authors = [{name = "Troy Sincomb", email = "your.email@example.com"}]
-license = {text = "MIT"}
+authors = [
+    "Jordan R. Willis <jwillis0720@gmail.com>",
+    "Troy Sincomb <troysincomb@gmail.com>",
+    "Caleb Kibet <ckibet@iavi.org>",
+]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.8"
 keywords = ["oscap", "scientific-literature", "csv", "converter"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -20,25 +23,24 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = [
-    "click>=8.0",
-    "pandas>=1.3.0",
-    "requests>=2.25.0",
-    "platformdirs>=2.0.0",
-    "pydantic>=2.0.0",
-]
+packages = [{include = "oscapify"}]
 
-[project.urls]
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^8.0"
+pandas = ">=1.5.0"
+requests = "^2.25.0"
+platformdirs = "^2.0.0"
+pydantic = "^2.0.0"
+
+[tool.poetry.urls]
 Homepage = "https://github.com/yourusername/oscapify"
 Repository = "https://github.com/yourusername/oscapify"
 Documentation = "https://github.com/yourusername/oscapify"
 Issues = "https://github.com/yourusername/oscapify/issues"
 
-[project.scripts]
+[tool.poetry.scripts]
 oscapify = "oscapify.cli:main"
-
-[tool.poetry]
-packages = [{include = "oscapify"}]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0"

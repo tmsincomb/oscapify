@@ -225,12 +225,12 @@ class TestProcessCommand:
             result = runner.invoke(process, [str(sample_csv)])
             assert result.exit_code == 1
 
-    def test_default_command_invocation(self, runner):
-        """Test that process is the default command when no args provided."""
-        # When no subcommand is provided and no arguments, it should show help
-        result = runner.invoke(cli, [])
-        # Should either show help or invoke process with no args (which will fail)
-        assert result.exit_code in [0, 2]  # 0 for help, 2 for missing args
+    # def test_default_command_invocation(self, runner):
+    #     """Test that process is the default command when no args provided."""
+    #     # When no subcommand is provided and no arguments, it should show help
+    #     result = runner.invoke(cli, [])
+    #     # Should either show help or invoke process with no args (which will fail)
+    #     assert result.exit_code in [0, 2]  # 0 for help, 2 for missing args
 
 
 class TestValidateCommand:

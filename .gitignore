@@ -226,3 +226,4 @@ publish_test_temp.sh
 !.gitignore
 !.pre-commit-config.yaml
 !.github
+oscapify_output_*
