@@ -34,17 +34,13 @@ class ProcessingConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    # API Configuration
-    api_key: Optional[str] = Field(default=None, description="NCBI API key for higher rate limits")
-
     # Output Configuration
     suffix: str = Field(default="-oscapify", description="Suffix for output files")
     output_dir: Optional[str] = Field(default=None, description="Output directory path")
-    batch_name: str = Field(default="oscapify_batch", description="Batch name for processing")
+    batch_name: str = Field(default="oscapify_template", description="Batch name for processing")
 
     # Processing Options
     validate_headers: bool = Field(default=True, description="Validate input headers")
-    skip_doi_errors: bool = Field(default=True, description="Continue processing on DOI errors")
     cache_doi_lookups: bool = Field(default=True, description="Cache DOI lookups")
     debug_mode: bool = Field(default=False, description="Enable debug logging")
 
@@ -113,10 +109,17 @@ class DOIResponse(BaseModel):
         """Parse NCBI API response."""
         if "records" in response and response["records"]:
             record = response["records"][0]
+            # Convert numeric IDs to strings if needed
+            pmid = record.get("pmid")
+            if pmid is not None:
+                pmid = str(pmid)
+            pmcid = record.get("pmcid")
+            if pmcid is not None:
+                pmcid = str(pmcid)
             return cls(
                 doi=record.get("doi"),
-                pmid=record.get("pmid"),
-                pmcid=record.get("pmcid"),
+                pmid=pmid,
+                pmcid=pmcid,
                 errmsg=record.get("errmsg"),
             )
         return cls(errmsg=response.get("errmsg", "No records found"))

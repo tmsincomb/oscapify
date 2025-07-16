@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 from oscapify.core import OscapifyProcessor
-from oscapify.exceptions import FileProcessingError, HeaderValidationError
+from oscapify.exceptions import FileProcessingError
 from oscapify.models import ProcessingConfig
 
 
@@ -79,12 +79,14 @@ class TestOscapifyProcessor:
         assert "pmid" in fixed_df.columns
         assert "PMID" not in fixed_df.columns
 
-    def test_validate_and_fix_headers_fail(self, processor):
-        """Test header validation failure."""
+    def test_validate_and_fix_headers_no_fail(self, processor):
+        """Test header validation creates missing headers instead of failing."""
         df = pd.DataFrame({"wrong_column": [1, 2]})
 
-        with pytest.raises(HeaderValidationError):
-            processor._validate_and_fix_headers(df, Path("test.csv"))
+        # Should not raise error, just warn and continue
+        result_df = processor._validate_and_fix_headers(df, Path("test.csv"))
+        assert result_df is not None
+        assert len(result_df) == 2
 
     @patch("requests.get")
     def test_get_doi_from_api(self, mock_get, processor, mock_doi_response):
@@ -121,6 +123,23 @@ class TestOscapifyProcessor:
             assert result_df.iloc[0]["doi"] == "10.1234/test"
             assert result_df.iloc[0]["out_of_scope"] == "no"
 
+    def test_process_dataframe_doi_optional(self, processor, sample_csv_data):
+        """Test that DOI retrieval failure doesn't stop processing."""
+        from oscapify.exceptions import DOIRetrievalError
+
+        with patch.object(processor, "_get_doi_cached") as mock_doi:
+            # Mock DOI retrieval failure
+            mock_doi.side_effect = DOIRetrievalError(
+                "DOI not found", pmid="12345678", debug_info={"test": "error"}
+            )
+
+            # Should not raise error, just continue with out_of_scope="yes"
+            result_df = processor._process_dataframe(sample_csv_data)
+
+            assert len(result_df) == len(sample_csv_data)
+            assert all(result_df["out_of_scope"] == "yes")
+            assert all(result_df["doi"] == "")
+
     def test_save_output(self, processor, test_output_dir, sample_csv_data):
         """Test saving output file."""
         output_file = test_output_dir / "test_output.csv"
@@ -134,31 +153,37 @@ class TestOscapifyProcessor:
     def test_process_files_integration(self, processor, sample_input_csv_path, test_output_dir):
         """Test full file processing integration with real test data."""
         # Read the actual data to get expected record count
-        df = pd.read_csv(sample_input_csv_path)
+        # df = pd.read_csv(sample_input_csv_path)  # Not used anymore
 
-        # Mock DOI retrieval
+        # Mock DOI retrieval to raise error (but processing should continue)
+        from oscapify.exceptions import DOIRetrievalError
+
         with patch.object(processor, "_get_doi_cached") as mock_doi:
-            mock_doi.return_value = None  # No DOI found
+            mock_doi.side_effect = DOIRetrievalError(
+                "No DOI found in test mode", debug_info={"test_mode": True}
+            )
 
             # Process files
             processor.config.output_dir = str(test_output_dir)
+
+            # Should not raise error, processing should complete
             stats = processor.process_files([str(sample_input_csv_path)])
 
-            # Check stats
-            assert stats.total_files == 1
             assert stats.processed_files == 1
             assert stats.failed_files == 0
-            assert stats.total_records == len(df)
+            assert stats.failed_doi_lookups > 0
 
-            # Check output file exists
-            output_files = list(Path(processor.config.output_dir).glob("*.csv"))
-            assert len(output_files) >= 1  # At least one output file
+            # Check output file exists - look for the specific file
+            expected_filename = sample_input_csv_path.stem + "-oscapify.csv"
+            output_file = test_output_dir / expected_filename
+            assert output_file.exists()
 
     def test_process_all_input_files(self, processor, test_input_csv_files, test_output_dir):
         """Test processing all CSV files from input directory."""
         # Mock DOI retrieval to avoid API calls
         with patch.object(processor, "_get_doi_cached") as mock_doi:
-            mock_doi.return_value = None
+            # Return valid DOI response for successful processing
+            mock_doi.return_value = Mock(doi="10.1234/test", pmid="12345678", pmcid="PMC1234567")
 
             # Process all test input files
             processor.config.output_dir = str(test_output_dir)

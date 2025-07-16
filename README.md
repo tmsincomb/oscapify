@@ -156,10 +156,6 @@ print(f"DOI lookups: {stats.successful_doi_lookups} successful, {stats.failed_do
 
 ## Configuration
 
-### Environment Variables
-
-- `OSCAPIFY_API_KEY` - NCBI API key for higher rate limits
-
 ### Custom Header Mapping via API
 
 ```python
@@ -193,7 +189,7 @@ config = ProcessingConfig(
 
 2. **DOI Retrieval Failures**
    - Check your internet connection
-   - Consider using an NCBI API key for better rate limits
+   - The tool implements rate limiting (3 requests/second) for NCBI API compliance
 
 3. **Encoding Errors**
    - Oscapify automatically tries multiple encodings

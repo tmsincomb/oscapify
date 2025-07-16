@@ -33,7 +33,6 @@ def cli(ctx):
     type=click.Path(),
     help="Output directory (default: oscapify_output_YYYYMMDD_HHMMSS)",
 )
-@click.option("--api-key", "-k", help="NCBI API key for higher rate limits")
 @click.option(
     "--suffix", "-s", default="-oscapify", help="Suffix for output files (default: -oscapify)"
 )
@@ -57,7 +56,6 @@ def cli(ctx):
 def process(
     inputs: List[str],
     output: Optional[str],
-    api_key: Optional[str],
     suffix: str,
     batch_name: str,
     no_cache: bool,
@@ -87,13 +85,11 @@ def process(
 
     # Create processing config
     config = ProcessingConfig(
-        api_key=api_key,
-        suffix=suffix,
         output_dir=output,
+        suffix=suffix,
         batch_name=batch_name,
-        validate_headers=not no_validation,
-        skip_doi_errors=not strict,
         cache_doi_lookups=not no_cache,
+        validate_headers=not no_validation,
         debug_mode=debug,
         header_mapping=header_mapping,
     )

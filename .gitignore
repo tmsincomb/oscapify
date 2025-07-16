@@ -211,6 +211,7 @@ OSCAP-INPUT/
 OSCAP-OUTPUT/
 oscapify_output_*/
 out.csv
+archive/
 
 # Temporary files
 *.tmp
@@ -220,3 +221,7 @@ publish_test_temp.sh
 
 *.md
 !README.md
+# Ignore all dotfiles and dotfolders except specific ones
+.*
+!.gitignore
+!.pre-commit-config.yaml
