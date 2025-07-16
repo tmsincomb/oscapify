@@ -4,13 +4,13 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Union
 
 import pandas as pd
 import requests
 
 from .cache import CacheManager, cached_function
-from .exceptions import DOIRetrievalError, FileProcessingError, HeaderValidationError
+from .exceptions import DOIRetrievalError, FileProcessingError
 from .models import (
     DOIResponse,
     InputRecord,
@@ -44,7 +44,7 @@ class OscapifyProcessor:
             def _get_doi_with_serialization(identifier: str) -> Dict[str, Any]:
                 doi_response = self._get_doi_from_api(identifier)
                 # Convert to dict for caching
-                return doi_response.model_dump() if doi_response else None
+                return doi_response.model_dump() if doi_response else {}
 
             # Cache the serializable version
             self._get_doi_cached_raw = cached_function(
@@ -52,7 +52,7 @@ class OscapifyProcessor:
             )(_get_doi_with_serialization)
 
             # Wrapper to convert back to DOIResponse
-            def _get_doi_cached(identifier: str) -> DOIResponse:
+            def _get_doi_cached(identifier: str) -> DOIResponse | None:
                 result = self._get_doi_cached_raw(identifier)
                 return DOIResponse(**result) if result else None
 
@@ -243,7 +243,7 @@ class OscapifyProcessor:
                 input_rec = InputRecord(
                     pmid=row.get(pmid_col, ""),
                     pmcid=row.get(pmcid_col, ""),
-                    sentence=row.get(sentence_col, ""),
+                    sentence=row.get(sentence_col, "") or "",
                     pubmed_url=row.get(pubmed_url_col, ""),
                 )
 
@@ -338,7 +338,7 @@ class OscapifyProcessor:
         else:
             ordered_columns = base_columns
 
-        return result_df[ordered_columns]
+        return result_df.loc[:, ordered_columns].copy()
 
     def _get_doi(self, record: InputRecord) -> DOIResponse:
         """Get DOI information for a record. Raises error if DOI cannot be found."""

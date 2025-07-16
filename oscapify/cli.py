@@ -2,7 +2,6 @@
 
 import logging
 import sys
-from pathlib import Path
 from typing import List, Optional
 
 import click
@@ -74,14 +73,11 @@ def process(
     )
 
     # Create header mapping
-    header_mapping_args = {
-        "pmid": header_pmid,
-        "sentence": header_sentence,
-    }
-    if preserve_fields:
-        header_mapping_args["preserve_fields"] = list(preserve_fields)
-
-    header_mapping = HeaderMapping(**header_mapping_args)
+    header_mapping = HeaderMapping(
+        pmid=header_pmid,
+        sentence=header_sentence,
+        preserve_fields=list(preserve_fields) if preserve_fields else [],
+    )
 
     # Create processing config
     config = ProcessingConfig(
@@ -221,7 +217,7 @@ def clear_cache():
 
 def main():
     """Main entry point."""
-    cli()
+    cli(prog_name="oscapify")
 
 
 if __name__ == "__main__":
