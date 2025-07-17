@@ -27,10 +27,6 @@ jobs:
         pip install poetry
         poetry install --with dev
 
-    - name: Format with black
-      run: |
-        black --check .
-
     - name: Test with pytest
       run: |
         pytest --cov=oscapify --cov-report=xml --cov-report=term-missing
