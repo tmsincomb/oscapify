@@ -57,13 +57,12 @@ def mock_processor():
     with patch("oscapify.cli.OscapifyProcessor") as mock_class:
         processor_instance = Mock()
         # Mock the process_files method to return ProcessingStats
-        stats = Mock()
+        from oscapify.models import ProcessingStats
+
+        stats = ProcessingStats()
         stats.total_files = 1
         stats.processed_files = 1
         stats.failed_files = 0
-        stats.total_rows = 3
-        stats.processed_rows = 3
-        stats.failed_rows = 0
         processor_instance.process_files.return_value = stats
         mock_class.return_value = processor_instance
         # Attach the mock class to the instance for tests to access
@@ -200,7 +199,9 @@ class TestProcessCommand:
 
         with patch("oscapify.cli.OscapifyProcessor") as mock:
             processor_instance = Mock()
-            stats = Mock()
+            from oscapify.models import ProcessingStats
+
+            stats = ProcessingStats()
             stats.total_files = 0
             stats.processed_files = 0
             stats.failed_files = 0
@@ -215,7 +216,9 @@ class TestProcessCommand:
         with patch("oscapify.cli.OscapifyProcessor") as mock:
             processor_instance = Mock()
             # Mock stats with failed files
-            stats = Mock()
+            from oscapify.models import ProcessingStats
+
+            stats = ProcessingStats()
             stats.total_files = 1
             stats.processed_files = 0
             stats.failed_files = 1
@@ -459,7 +462,9 @@ class TestCLIIntegration:
         # Mock the processor to avoid actual DOI lookups
         with patch("oscapify.cli.OscapifyProcessor") as mock:
             processor_instance = Mock()
-            stats = Mock()
+            from oscapify.models import ProcessingStats
+
+            stats = ProcessingStats()
             stats.total_files = 1
             stats.processed_files = 1
             stats.failed_files = 0
@@ -484,7 +489,9 @@ class TestCLIIntegration:
         with patch("oscapify.cli.OscapifyProcessor") as mock:
             processor_instance = Mock()
             # Mock stats showing one file failed
-            stats = Mock()
+            from oscapify.models import ProcessingStats
+
+            stats = ProcessingStats()
             stats.total_files = 3
             stats.processed_files = 2
             stats.failed_files = 1

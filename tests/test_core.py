@@ -210,3 +210,51 @@ class TestOscapifyProcessor:
 
         # Check data is not empty
         assert len(df) > 0
+
+    def test_doi_not_carried_over_between_records(self, processor):
+        """Test that DOIs from successful lookups don't carry over to failed lookups."""
+        # Create test data with multiple records
+        test_data = pd.DataFrame(
+            {
+                "pmid": ["12345678", "87654321", "11111111"],
+                "pmcid": ["PMC1234567", "", "PMC9999999"],
+                "sentence": ["Test sentence 1", "Test sentence 2", "Test sentence 3"],
+                "structure_1": ["A", "B", "C"],
+                "structure_2": ["X", "Y", "Z"],
+                "relation": ["connects", "binds", "inhibits"],
+                "score": [0.9, 0.8, 0.7],
+            }
+        )
+
+        # Mock DOI retrieval to return DOI for first record, fail for second, succeed for third
+        from oscapify.exceptions import DOIRetrievalError
+
+        with patch.object(processor, "_get_doi_cached") as mock_doi:
+
+            def doi_side_effect(identifier):
+                if identifier == "PMC1234567":
+                    return Mock(doi="10.1234/first.doi", pmid="12345678", pmcid="PMC1234567")
+                elif identifier == "87654321":
+                    raise DOIRetrievalError("No DOI found", pmid="87654321")
+                elif identifier == "PMC9999999":
+                    return Mock(doi="10.1234/third.doi", pmid="11111111", pmcid="PMC9999999")
+
+            mock_doi.side_effect = doi_side_effect
+
+            # Process the dataframe
+            result_df = processor._process_dataframe(test_data)
+
+            # Verify results
+            assert len(result_df) == 3
+
+            # First record should have DOI
+            assert result_df.iloc[0]["doi"] == "10.1234/first.doi"
+            assert result_df.iloc[0]["out_of_scope"] == "no"
+
+            # Second record should NOT have DOI (not the first record's DOI)
+            assert result_df.iloc[1]["doi"] == ""
+            assert result_df.iloc[1]["out_of_scope"] == "yes"
+
+            # Third record should have its own DOI
+            assert result_df.iloc[2]["doi"] == "10.1234/third.doi"
+            assert result_df.iloc[2]["out_of_scope"] == "no"

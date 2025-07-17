@@ -408,6 +408,7 @@ class OscapifyProcessor:
                         elif "status" in record and record["status"] != "live":
                             error_message = f"Record status: {record.get('status', 'unknown')}"
 
+                logger.error(f"DOI retrieval failed for {identifier}: {error_message}")
                 raise DOIRetrievalError(
                     f"{error_message} for identifier: {identifier}",
                     pmid=identifier if not identifier.startswith("PMC") else None,
