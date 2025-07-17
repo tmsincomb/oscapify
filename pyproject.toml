@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oscapify"
-version = "0.1.0"
+version = "0.1.1"
 description = "A robust tool for converting scientific literature CSV files to OSCAP-compatible format"
 authors = [
     "Jordan R. Willis <jwillis0720@gmail.com>",
